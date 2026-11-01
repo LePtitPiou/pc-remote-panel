@@ -1,0 +1,408 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10131d">
+<title>Remote PC Panel</title>
+
+<style>
+:root {
+    --bg: #10131d;
+    --card: #191f2d;
+    --border: #2c3548;
+    --text: #f5f7ff;
+    --muted: #9ba8bd;
+    --accent: #7568f5;
+    --green: #25c58b;
+    --red: #ef5965;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+    padding: 24px 16px;
+}
+
+.container {
+    width: 100%;
+    max-width: 650px;
+    margin: 35px auto;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo {
+    font-size: 42px;
+    margin-bottom: 12px;
+}
+
+h1 {
+    font-size: 28px;
+    margin: 0 0 8px;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 18px;
+}
+
+.card h2 {
+    font-size: 17px;
+    margin: 0 0 18px;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #777;
+}
+
+.dot.online {
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+}
+
+.dot.offline {
+    background: var(--red);
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    margin-top: 12px;
+    border: 1px solid var(--border);
+    background: #101522;
+    color: white;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+}
+
+input:focus {
+    border-color: var(--accent);
+}
+
+button {
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    color: white;
+    background: var(--accent);
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .2s;
+}
+
+button:active {
+    transform: scale(.98);
+}
+
+button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.site-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    text-align: left;
+    background: #252d40;
+    border: 1px solid var(--border);
+}
+
+.site-button:hover {
+    background: #303b55;
+}
+
+.site-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.site-name {
+    font-size: 16px;
+}
+
+.site-url {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: normal;
+    overflow-wrap: anywhere;
+}
+
+.site-icon {
+    font-size: 25px;
+    margin-left: 12px;
+}
+
+.message {
+    min-height: 20px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 15px;
+    line-height: 1.5;
+}
+
+.message.success {
+    color: var(--green);
+}
+
+.message.error {
+    color: var(--red);
+}
+
+.footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 25px;
+}
+
+@media(max-width: 480px) {
+    body {
+        padding: 12px;
+    }
+
+    .container {
+        margin: 20px auto;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header class="header">
+        <div class="logo">🖥️</div>
+        <h1>Remote PC Panel</h1>
+        <p class="subtitle">Télécommande de ton ordinateur</p>
+    </header>
+
+    <section class="card">
+        <h2>État de l'ordinateur</h2>
+
+        <div class="status">
+            <span id="statusDot" class="dot"></span>
+            <span id="statusText">Vérification...</span>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Authentification</h2>
+
+        <input
+            id="token"
+            type="password"
+            placeholder="Mot de passe du panel"
+            autocomplete="current-password"
+        >
+    </section>
+
+    <section class="card">
+        <h2>Commandes disponibles</h2>
+
+        <button class="site-button"
+            onclick="launchSite('twitch')">
+            <span class="site-info">
+                <span class="site-name">Twitch Mastu</span>
+                <span class="site-url">
+                    twitch.tv/mastu
+                </span>
+            </span>
+            <span class="site-icon">📺</span>
+        </button>
+
+        <button class="site-button"
+            onclick="launchSite('youtube')">
+            <span class="site-info">
+                <span class="site-name">YouTube</span>
+                <span class="site-url">
+                    youtube.com
+                </span>
+            </span>
+            <span class="site-icon">▶️</span>
+        </button>
+
+        <div id="message" class="message">
+            En attente d'une commande.
+        </div>
+    </section>
+
+    <footer class="footer">
+        Remote PC Panel — Version 1.0
+    </footer>
+
+</div>
+
+<script>
+/*
+ * CONFIGURATION
+ * Remplace cette adresse par celle de ton Cloudflare Worker.
+ */
+const API_URL = "https://TON-WORKER.workers.dev";
+
+/*
+ * Liste des sites disponibles.
+ * Les URL doivent également être autorisées
+ * dans la configuration du Worker.
+ */
+const SITES = {
+    twitch: {
+        name: "Twitch",
+        url: "https://www.twitch.tv/la_chaine_que_je_veux"
+    },
+
+    youtube: {
+        name: "YouTube",
+        url: "https://www.youtube.com"
+    }
+};
+
+const tokenInput = document.getElementById("token");
+const message = document.getElementById("message");
+const statusDot = document.getElementById("statusDot");
+const statusText = document.getElementById("statusText");
+
+/* Récupération du mot de passe pour la session courante. */
+tokenInput.value = sessionStorage.getItem("panel_token") || "";
+
+tokenInput.addEventListener("change", () => {
+    sessionStorage.setItem("panel_token", tokenInput.value);
+});
+
+function showMessage(text, type = "") {
+    message.textContent = text;
+    message.className = "message " + type;
+}
+
+async function launchSite(siteId) {
+    const site = SITES[siteId];
+    const token = tokenInput.value.trim();
+
+    if (!site) {
+        showMessage("Site inconnu.", "error");
+        return;
+    }
+
+    if (!token) {
+        showMessage("Saisis ton mot de passe.", "error");
+        tokenInput.focus();
+        return;
+    }
+
+    showMessage("Envoi de la commande...");
+
+    try {
+        const response = await fetch(API_URL + "/api/command", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({
+                url: site.url
+            })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Erreur serveur.");
+        }
+
+        showMessage(
+            "Commande envoyée : " + site.name,
+            "success"
+        );
+
+    } catch (error) {
+        showMessage(error.message, "error");
+    }
+}
+
+async function checkStatus() {
+    const token = tokenInput.value.trim();
+
+    if (!token) {
+        statusText.textContent = "Mot de passe requis";
+        statusDot.className = "dot";
+        return;
+    }
+
+    try {
+        const response = await fetch(API_URL + "/api/status", {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Statut indisponible");
+        }
+
+        const data = await response.json();
+
+        if (data.online) {
+            statusText.textContent = "PC connecté";
+            statusDot.className = "dot online";
+        } else {
+            statusText.textContent = "PC hors ligne";
+            statusDot.className = "dot offline";
+        }
+
+    } catch {
+        statusText.textContent = "Connexion au serveur impossible";
+        statusDot.className = "dot offline";
+    }
+}
+
+checkStatus();
+setInterval(checkStatus, 10000);
+</script>
+
+</body>
+</html>
